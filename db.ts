@@ -99,6 +99,7 @@ export const db = {
     return mapId(res);
   },
 
+
   async getAllLeaves() {
     const res = await api.get('/api/leaves');
     return mapId(res);
@@ -111,7 +112,7 @@ export const db = {
     const res = await api.put(`/api/leaves/${id}`, data);
     return mapId(res);
   },
-
+  
   async getAllAdvances() {
     const res = await api.get('/api/advances');
     return mapId(res);
@@ -124,7 +125,7 @@ export const db = {
     const res = await api.put(`/api/advances/${id}`, data);
     return mapId(res);
   },
-
+  
   async getAllPosts() {
     const res = await api.get('/api/posts');
     return mapId(res);
@@ -133,7 +134,7 @@ export const db = {
     const res = await api.post('/api/posts', data);
     return mapId(res);
   },
-
+  
   async getAllAnnouncements() {
     const res = await api.get('/api/announcements');
     return mapId(res);
@@ -143,3 +144,11 @@ export const db = {
     return mapId(res);
   },
 };
+
+// Default export for compatibility (must be at the end of the file)
+const dbDefault = {
+  getAll,
+  saveBatch,
+  ...db
+};
+export default dbDefault;
