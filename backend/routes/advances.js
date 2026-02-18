@@ -1,7 +1,18 @@
 const express = require('express');
 const router = express.Router();
-// TODO: Implement advances logic
-router.get('/', (req, res) => {
-  res.status(501).json({ message: 'Not implemented' });
+
+const { Advance } = require('../models');
+
+// GET /api/advances
+router.get('/', async (req, res) => {
+  const docs = await Advance.find({});
+  res.json(docs);
 });
+
+// POST /api/advances
+router.post('/', async (req, res) => {
+  const doc = await Advance.create(req.body);
+  res.status(201).json(doc);
+});
+
 module.exports = router;

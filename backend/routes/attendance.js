@@ -1,7 +1,18 @@
 const express = require('express');
 const router = express.Router();
-// TODO: Implement attendance logic
-router.get('/', (req, res) => {
-  res.status(501).json({ message: 'Not implemented' });
+
+const { Attendance } = require('../models');
+
+// GET /api/attendance
+router.get('/', async (req, res) => {
+  const docs = await Attendance.find({});
+  res.json(docs);
 });
+
+// POST /api/attendance
+router.post('/', async (req, res) => {
+  const doc = await Attendance.create(req.body);
+  res.status(201).json(doc);
+});
+
 module.exports = router;

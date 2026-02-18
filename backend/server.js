@@ -38,11 +38,18 @@ mongoose.connect(MONGODB_URI, {
 
 // Placeholder routes
 app.use('/api/login', require('./routes/login'));
+
 app.use('/api/workers', require('./routes/workers'));
 app.use('/api/attendance', require('./routes/attendance'));
 app.use('/api/leaves', require('./routes/leaves'));
 app.use('/api/advances', require('./routes/advances'));
-app.use('/api/reports', require('./routes/reports'));
+app.use('/api/posts', require('./routes/posts'));
+app.use('/api/announcements', require('./routes/announcements'));
+
+// Health endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true });
+});
 
 app.get('/', (req, res) => {
   res.send('Backend is running');

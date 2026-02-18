@@ -1,17 +1,16 @@
 const express = require('express');
 const router = express.Router();
+const { Post } = require('../models');
 
-const { Leave } = require('../models');
-
-// GET /api/leaves
+// GET /api/posts
 router.get('/', async (req, res) => {
-  const docs = await Leave.find({});
+  const docs = await Post.find({});
   res.json(docs);
 });
 
-// POST /api/leaves
+// POST /api/posts
 router.post('/', async (req, res) => {
-  const doc = await Leave.create(req.body);
+  const doc = await Post.create(req.body);
   res.status(201).json(doc);
 });
 
