@@ -146,9 +146,4 @@ export const db = {
 };
 
 // Default export for compatibility (must be at the end of the file)
-const dbDefault = {
-  getAll,
-  saveBatch,
-  ...db
-};
-export default dbDefault;
+export default db;
