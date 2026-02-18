@@ -72,8 +72,8 @@ const App: React.FC = () => {
       if (sessionRole === 'admin' && sessionUserId === MOCK_ADMIN.email) {
         setCurrentUser({ ...MOCK_ADMIN, role: 'admin' });
       } else if (sessionRole === 'worker') {
-        // Find worker in loaded workers list
-        const allWorkers = workers.length > 0 ? workers : MOCK_WORKERS;
+        // Only restore from cloud workers
+        const allWorkers = workers;
         const foundUser = allWorkers.find(w => w.id === sessionUserId || w.workerId === sessionUserId);
         if (foundUser) {
           setCurrentUser({ ...foundUser, role: 'worker' });
