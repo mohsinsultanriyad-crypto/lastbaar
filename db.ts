@@ -31,7 +31,6 @@ export async function getAll(key) {
 }
 
 export async function saveBatch(key, items) {
-  // For each item, upsert (POST if no id, PUT if id)
   for (const item of items) {
     if (!item) continue;
     switch (key) {
