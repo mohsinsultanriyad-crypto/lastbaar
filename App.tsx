@@ -11,6 +11,7 @@ import { Loader2, Cloud } from 'lucide-react';
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const didRestoreSession = useRef(false); // Prevent infinite restore
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [leaves, setLeaves] = useState<Leave[]>([]);
   const [posts, setPosts] = useState<SitePost[]>([]);
@@ -52,21 +53,6 @@ const App: React.FC = () => {
         // Language Persistence
         const savedLang = localStorage.getItem('fw_lang');
         if (savedLang) setLanguage(savedLang as Language);
-        // SESSION PERSISTENCE: Check if a user was previously logged in
-        const sessionUserId = localStorage.getItem('fw_session_id');
-        const sessionRole = localStorage.getItem('fw_session_role');
-        if (sessionUserId && sessionRole) {
-          if (sessionRole === 'admin' && sessionUserId === MOCK_ADMIN.email) {
-            setCurrentUser(MOCK_ADMIN);
-          } else {
-            // Check in the freshly fetched MongoDB workers
-            const allWorkers = workers.length > 0 ? workers : MOCK_WORKERS;
-            const foundUser = allWorkers.find(w => w.id === sessionUserId || w.workerId === sessionUserId);
-            if (foundUser) {
-              setCurrentUser(foundUser);
-            }
-          }
-        }
       } catch (e) {
         console.error("Cloud fetch failed", e);
       } finally {
@@ -74,8 +60,28 @@ const App: React.FC = () => {
       }
     };
     initData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // 1b. Restore session from localStorage after data is loaded
+  useEffect(() => {
+    if (!isLoaded || didRestoreSession.current) return;
+    didRestoreSession.current = true;
+    const sessionUserId = localStorage.getItem('fw_session_id');
+    const sessionRole = localStorage.getItem('fw_session_role');
+    if (sessionUserId && sessionRole) {
+      if (sessionRole === 'admin' && sessionUserId === MOCK_ADMIN.email) {
+        setCurrentUser({ ...MOCK_ADMIN, role: 'admin' });
+      } else if (sessionRole === 'worker') {
+        // Find worker in loaded workers list
+        const allWorkers = workers.length > 0 ? workers : MOCK_WORKERS;
+        const foundUser = allWorkers.find(w => w.id === sessionUserId || w.workerId === sessionUserId);
+        if (foundUser) {
+          setCurrentUser({ ...foundUser, role: 'worker' });
+        }
+      }
+    }
+    // If no session, currentUser remains null (login shown)
+  }, [isLoaded, workers]);
 
   // 2. State-to-MongoDB Sync Wrappers
 
@@ -156,6 +162,7 @@ const App: React.FC = () => {
     // Clear session info
     localStorage.removeItem('fw_session_id');
     localStorage.removeItem('fw_session_role');
+    localStorage.removeItem('token'); // If token is used
     setCurrentUser(null);
   };
 
@@ -169,6 +176,15 @@ const App: React.FC = () => {
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 space-y-4">
         <Loader2 className="animate-spin text-blue-600" size={48} />
         <p className="text-xs font-black text-gray-400 uppercase tracking-widest animate-pulse">Synchronizing Cloud Data...</p>
+      </div>
+    );
+  }
+
+  // Show loader while data is loading or session is restoring
+  if (!isLoaded || (currentUser === null && (localStorage.getItem('fw_session_id') && localStorage.getItem('fw_session_role')))) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <Loader2 className="animate-spin text-blue-600" size={48} />
       </div>
     );
   }
