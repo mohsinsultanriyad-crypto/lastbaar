@@ -9,8 +9,64 @@ function mapId(obj) {
   return obj;
 }
 
+
+// Legacy/compatibility: getAll(key) and saveBatch(key, items)
+export async function getAll(key) {
+  switch (key) {
+    case 'workers':
+      return mapId(await api.get('/api/workers'));
+    case 'shifts':
+      return mapId(await api.get('/api/attendance'));
+    case 'leaves':
+      return mapId(await api.get('/api/leaves'));
+    case 'advanceRequests':
+      return mapId(await api.get('/api/advances'));
+    case 'posts':
+      return mapId(await api.get('/api/posts'));
+    case 'announcements':
+      return mapId(await api.get('/api/announcements'));
+    default:
+      return [];
+  }
+}
+
+export async function saveBatch(key, items) {
+  // For each item, upsert (POST if no id, PUT if id)
+  for (const item of items) {
+    if (!item) continue;
+    switch (key) {
+      case 'workers':
+        if (item.id) await api.put(`/api/workers/${item.id}`, item);
+        else await api.post('/api/workers', item);
+        break;
+      case 'shifts':
+        if (item.id) await api.put(`/api/attendance/${item.id}/status`, item);
+        else await api.post('/api/attendance', item);
+        break;
+      case 'leaves':
+        if (item.id) await api.put(`/api/leaves/${item.id}`, item);
+        else await api.post('/api/leaves', item);
+        break;
+      case 'advanceRequests':
+        if (item.id) await api.put(`/api/advances/${item.id}`, item);
+        else await api.post('/api/advances', item);
+        break;
+      case 'posts':
+        if (item.id) await api.put(`/api/posts/${item.id}`, item);
+        else await api.post('/api/posts', item);
+        break;
+      case 'announcements':
+        if (item.id) await api.put(`/api/announcements/${item.id}`, item);
+        else await api.post('/api/announcements', item);
+        break;
+      default:
+        break;
+    }
+  }
+}
+
+// Modern API (unchanged)
 export const db = {
-  // WORKERS
   async getAllWorkers() {
     const res = await api.get('/api/workers');
     return mapId(res);
@@ -27,7 +83,6 @@ export const db = {
     return api.delete(`/api/workers/${id}`);
   },
 
-  // SHIFTS / ATTENDANCE
   async getAllShifts() {
     const res = await api.get('/api/attendance');
     return mapId(res);
@@ -45,7 +100,6 @@ export const db = {
     return mapId(res);
   },
 
-  // LEAVES
   async getAllLeaves() {
     const res = await api.get('/api/leaves');
     return mapId(res);
@@ -59,7 +113,6 @@ export const db = {
     return mapId(res);
   },
 
-  // ADVANCES
   async getAllAdvances() {
     const res = await api.get('/api/advances');
     return mapId(res);
@@ -73,7 +126,6 @@ export const db = {
     return mapId(res);
   },
 
-  // POSTS (Site Feed)
   async getAllPosts() {
     const res = await api.get('/api/posts');
     return mapId(res);
@@ -83,7 +135,6 @@ export const db = {
     return mapId(res);
   },
 
-  // ANNOUNCEMENTS
   async getAllAnnouncements() {
     const res = await api.get('/api/announcements');
     return mapId(res);
