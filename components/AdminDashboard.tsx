@@ -42,13 +42,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const handleAddAnnouncement = () => {
     if (!newAnnounce.trim()) return;
-    setAnnouncements([{ id: Math.random().toString(36).substr(2, 9), content: newAnnounce, priority: announcePriority, timestamp: Date.now() }, ...announcements]);
+    updateAnnouncements([{ id: Math.random().toString(36).substr(2, 9), content: newAnnounce, priority: announcePriority, timestamp: Date.now() }, ...announcements]);
     setNewAnnounce('');
     setShowAnnounceModal(false);
   };
 
   const decideAdvance = (id: string, status: 'approved' | 'rejected' | 'scheduled', date?: string) => {
-    setAdvanceRequests(prev => prev.map(r => r.id === id ? { ...r, status, paymentDate: status === 'scheduled' ? date : r.paymentDate } : r));
+    updateAdvanceRequests(prev => prev.map(r => r.id === id ? { ...r, status, paymentDate: status === 'scheduled' ? date : r.paymentDate } : r));
     setSchedulingReqId(null);
   };
 

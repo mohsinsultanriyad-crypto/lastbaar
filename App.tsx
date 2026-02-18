@@ -21,41 +21,46 @@ const App: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [language, setLanguage] = useState<Language>('en');
 
+
+  // Reusable function to fetch all cloud data and update state
+  const refreshCloudData = async () => {
+    try {
+      const [dbShifts, dbLeaves, dbPosts, dbWorkers, dbAdvances, dbAnnounce] = await Promise.all([
+        db.getAll('shifts'),
+        db.getAll('leaves'),
+        db.getAll('posts'),
+        db.getAll('workers'),
+        db.getAll('advanceRequests'),
+        db.getAll('announcements'),
+      ]);
+      setShifts(dbShifts);
+      setLeaves(dbLeaves);
+      setPosts(dbPosts);
+      setWorkers(dbWorkers);
+      setAdvanceRequests(dbAdvances);
+      setAnnouncements(dbAnnounce);
+    } catch (e) {
+      console.error("Cloud fetch failed", e);
+    }
+  };
+
   // 1. Initial Data Fetch from MongoDB + Session Restoration
   useEffect(() => {
     const initData = async () => {
       try {
-        // Fetch all data from Cloud (MongoDB)
-        const [dbShifts, dbLeaves, dbPosts, dbWorkers, dbAdvances, dbAnnounce] = await Promise.all([
-          db.getAll<Shift>('shifts'),
-          db.getAll<Leave>('leaves'),
-          db.getAll<SitePost>('posts'),
-          db.getAll<User>('workers'),
-          db.getAll<AdvanceRequest>('advanceRequests'),
-          db.getAll<Announcement>('announcements'),
-        ]);
-
-        if (dbShifts.length) setShifts(dbShifts);
-        if (dbLeaves.length) setLeaves(dbLeaves);
-        if (dbPosts.length) setPosts(dbPosts);
-        if (dbWorkers.length) setWorkers(dbWorkers);
-        if (dbAdvances.length) setAdvanceRequests(dbAdvances);
-        if (dbAnnounce.length) setAnnouncements(dbAnnounce);
-
+        await refreshCloudData();
         // Language Persistence
         const savedLang = localStorage.getItem('fw_lang');
         if (savedLang) setLanguage(savedLang as Language);
-
         // SESSION PERSISTENCE: Check if a user was previously logged in
         const sessionUserId = localStorage.getItem('fw_session_id');
         const sessionRole = localStorage.getItem('fw_session_role');
-
         if (sessionUserId && sessionRole) {
           if (sessionRole === 'admin' && sessionUserId === MOCK_ADMIN.email) {
             setCurrentUser(MOCK_ADMIN);
           } else {
             // Check in the freshly fetched MongoDB workers
-            const allWorkers = dbWorkers.length > 0 ? dbWorkers : MOCK_WORKERS;
+            const allWorkers = workers.length > 0 ? workers : MOCK_WORKERS;
             const foundUser = allWorkers.find(w => w.id === sessionUserId || w.workerId === sessionUserId);
             if (foundUser) {
               setCurrentUser(foundUser);
@@ -69,14 +74,18 @@ const App: React.FC = () => {
       }
     };
     initData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 2. State-to-MongoDB Sync Wrappers
+
   const updateShifts: React.Dispatch<React.SetStateAction<Shift[]>> = (val) => {
     setShifts(prev => {
       const next = typeof val === 'function' ? val(prev) : val;
       setIsSyncing(true);
-      db.saveBatch('shifts', next).finally(() => setIsSyncing(false));
+      db.saveBatch('shifts', next)
+        .then(refreshCloudData)
+        .finally(() => setIsSyncing(false));
       return next;
     });
   };
@@ -85,7 +94,9 @@ const App: React.FC = () => {
     setLeaves(prev => {
       const next = typeof val === 'function' ? val(prev) : val;
       setIsSyncing(true);
-      db.saveBatch('leaves', next).finally(() => setIsSyncing(false));
+      db.saveBatch('leaves', next)
+        .then(refreshCloudData)
+        .finally(() => setIsSyncing(false));
       return next;
     });
   };
@@ -94,7 +105,9 @@ const App: React.FC = () => {
     setWorkers(prev => {
       const next = typeof val === 'function' ? val(prev) : val;
       setIsSyncing(true);
-      db.saveBatch('workers', next).finally(() => setIsSyncing(false));
+      db.saveBatch('workers', next)
+        .then(refreshCloudData)
+        .finally(() => setIsSyncing(false));
       return next;
     });
   };
@@ -103,7 +116,9 @@ const App: React.FC = () => {
     setPosts(prev => {
       const next = typeof val === 'function' ? val(prev) : val;
       setIsSyncing(true);
-      db.saveBatch('posts', next).finally(() => setIsSyncing(false));
+      db.saveBatch('posts', next)
+        .then(refreshCloudData)
+        .finally(() => setIsSyncing(false));
       return next;
     });
   };
@@ -112,7 +127,9 @@ const App: React.FC = () => {
     setAdvanceRequests(prev => {
       const next = typeof val === 'function' ? val(prev) : val;
       setIsSyncing(true);
-      db.saveBatch('advanceRequests', next).finally(() => setIsSyncing(false));
+      db.saveBatch('advanceRequests', next)
+        .then(refreshCloudData)
+        .finally(() => setIsSyncing(false));
       return next;
     });
   };
@@ -121,7 +138,9 @@ const App: React.FC = () => {
     setAnnouncements(prev => {
       const next = typeof val === 'function' ? val(prev) : val;
       setIsSyncing(true);
-      db.saveBatch('announcements', next).finally(() => setIsSyncing(false));
+      db.saveBatch('announcements', next)
+        .then(refreshCloudData)
+        .finally(() => setIsSyncing(false));
       return next;
     });
   };

@@ -30,7 +30,7 @@ const SiteFeed: React.FC<SiteFeedProps> = ({ user, posts, setPosts, language = '
       timestamp: Date.now(),
       imageUrl: Math.random() > 0.7 ? `https://picsum.photos/seed/${Math.random()}/600/400` : undefined
     };
-    setPosts([newPost, ...posts]);
+    updatePosts([newPost, ...posts]);
     setContent('');
   };
 

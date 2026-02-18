@@ -97,12 +97,12 @@ const AdminWorkerList: React.FC<AdminWorkerListProps> = ({ workers, setWorkers, 
 
   const handleUpdateWorker = (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingWorker) setWorkers(prev => prev.map(w => w.id === editingWorker.id ? editingWorker : w));
+    if (editingWorker) updateWorkers(prev => prev.map(w => w.id === editingWorker.id ? editingWorker : w));
     setEditingWorker(null);
   };
 
   const handleDeleteWorker = () => {
-    if (workerToDelete) { setWorkers(prev => prev.filter(w => w.id !== workerToDelete.id)); setWorkerToDelete(null); }
+    if (workerToDelete) { updateWorkers(prev => prev.filter(w => w.id !== workerToDelete.id)); setWorkerToDelete(null); }
   };
 
   const handleCreateWorker = (e: React.FormEvent) => {
@@ -121,7 +121,7 @@ const AdminWorkerList: React.FC<AdminWorkerListProps> = ({ workers, setWorkers, 
       iqamaExpiry: newWorker.iqamaExpiry,
       passportExpiry: newWorker.passportExpiry
     };
-    setWorkers(prev => [...prev, newUser]);
+    updateWorkers(prev => [...prev, newUser]);
     setShowAddModal(false);
     setNewWorker({ name: '', workerId: '', trade: '', monthlySalary: '', phone: '', password: 'password123', iqamaExpiry: '', passportExpiry: '', role: 'worker' });
   };
