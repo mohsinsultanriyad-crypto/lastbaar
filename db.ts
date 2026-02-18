@@ -67,10 +67,10 @@ export async function saveBatch(key, items) {
 // Modern API (unchanged)
 
 
-const dbDefault = {
+const db = {
   getAll,
   saveBatch,
 };
-export default dbDefault;
-export { dbDefault as db };
+export default db;
+export { db };
 // Default export for compatibility (must be at the end of the file)
