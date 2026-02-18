@@ -9,26 +9,21 @@ const app = express();
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://srv-d6aoken5r7bs739827sg.onrender.com'
+  'https://fsa-d51e.onrender.com'
 ];
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    // allow requests with no origin (like mobile apps, curl, etc.)
+app.use(cors({
+  origin: function(origin, callback) {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(null, false);
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-};
+  credentials: true,
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization"]
+}));
 
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+app.options("*", cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
