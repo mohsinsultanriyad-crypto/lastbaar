@@ -31,4 +31,24 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+
+// DELETE /api/posts/:id
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+  let result;
+  if (/^[a-fA-F0-9]{24}$/.test(id)) {
+    // Try Mongo ObjectId
+    result = await Post.deleteOne({ _id: id });
+    if (result.deletedCount > 0) {
+      return res.json({ ok: true });
+    }
+  }
+  // Try custom id field
+  result = await Post.deleteOne({ id });
+  if (result.deletedCount > 0) {
+    return res.json({ ok: true });
+  }
+  return res.status(404).json({ ok: false, error: 'Not found' });
+});
+
 module.exports = router;
