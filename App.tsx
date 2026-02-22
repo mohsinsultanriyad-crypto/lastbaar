@@ -48,13 +48,30 @@ const App: React.FC = () => {
   // 1. Initial Data Fetch from MongoDB + Session Restoration
   useEffect(() => {
     const initData = async () => {
+      let didTimeout = false;
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => {
+          didTimeout = true;
+          reject(new Error('Cloud fetch timeout'));
+        }, 12000);
+      });
       try {
-        await refreshCloudData();
-        // Language Persistence
-        const savedLang = localStorage.getItem('fw_lang');
-        if (savedLang) setLanguage(savedLang as Language);
+        await Promise.race([
+          (async () => {
+            await refreshCloudData();
+            // Language Persistence
+            const savedLang = localStorage.getItem('fw_lang');
+            if (savedLang) setLanguage(savedLang as Language);
+          })(),
+          timeoutPromise
+        ]);
       } catch (e) {
-        console.error("Cloud fetch failed", e);
+        console.error("Cloud fetch failed or timed out", e);
+        // Clear invalid session keys and force login
+        localStorage.removeItem('fw_session_id');
+        localStorage.removeItem('fw_session_role');
+        localStorage.removeItem('token');
+        setCurrentUser(null);
       } finally {
         setIsLoaded(true);
       }
