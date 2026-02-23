@@ -9,30 +9,25 @@ const { Advance } = require('../models');
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const actorId = req.header('X-Actor-Id');
-    const actorRole = req.header('X-Actor-Role');
-    let doc = null;
-    // Only call findById if id is valid ObjectId and 24 hex chars
-    if (typeof id === 'string' && id.length === 24 && mongoose.Types.ObjectId.isValid(id)) {
-      doc = await Advance.findById(id);
-    }
+
+    const doc = await Advance.findOne({ id });
+
     if (!doc) {
-      doc = await Advance.findOne({ id });
+      return res.status(404).json({ error: 'Not found' });
     }
-    if (!doc) return res.status(404).json({ error: 'Not found' });
-    if (actorRole === 'worker' && doc.workerId !== actorId) {
-      return res.status(403).json({ error: 'Forbidden' });
-    }
-    // Soft delete
+
     doc.deleted = true;
     doc.deletedAt = new Date();
-    doc.deletedBy = actorRole;
-    // Salary logic: set effectiveAmount to 0
-    doc.effectiveAmount = 0;
+
+    // Ensure zero payroll impact
+    if (doc.amount !== undefined) doc.amount = 0;
+    if (doc.effectiveAmount !== undefined) doc.effectiveAmount = 0;
+
     await doc.save();
-    return res.json({ ok: true, id: doc.id, _id: doc._id });
+
+    res.json({ ok: true, id: doc.id });
   } catch (e) {
-    return res.status(400).json({ error: e.message });
+    res.status(400).json({ error: e.message });
   }
 });
 

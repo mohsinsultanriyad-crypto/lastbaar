@@ -9,32 +9,27 @@ const { Leave } = require('../models');
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const actorId = req.header('X-Actor-Id');
-    const actorRole = req.header('X-Actor-Role');
-    let doc = null;
-    // Only call findById if id is valid ObjectId and 24 hex chars
-    if (typeof id === 'string' && id.length === 24 && mongoose.Types.ObjectId.isValid(id)) {
-      doc = await Leave.findById(id);
-    }
+
+    // ONLY search by custom id field
+    const doc = await Leave.findOne({ id });
+
     if (!doc) {
-      doc = await Leave.findOne({ id });
+      return res.status(404).json({ error: 'Not found' });
     }
-    if (!doc) return res.status(404).json({ error: 'Not found' });
-    if (actorRole === 'worker' && doc.workerId !== actorId) {
-      return res.status(403).json({ error: 'Forbidden' });
-    }
-    // Soft delete
+
+    // Soft delete (keep existing payroll-safe logic)
     doc.deleted = true;
     doc.deletedAt = new Date();
-    doc.deletedBy = actorRole;
-    // Salary logic: set deduction fields to 0
-    if ('deduction' in doc) doc.deduction = 0;
-    if ('finalDeductionAmount' in doc) doc.finalDeductionAmount = 0;
-    doc.effectiveDeduction = 0;
+
+    // Ensure zero payroll impact
+    if (doc.deduction !== undefined) doc.deduction = 0;
+    if (doc.effectiveDeduction !== undefined) doc.effectiveDeduction = 0;
+
     await doc.save();
-    return res.json({ ok: true, id: doc.id, _id: doc._id });
+
+    res.json({ ok: true, id: doc.id });
   } catch (e) {
-    return res.status(400).json({ error: e.message });
+    res.status(400).json({ error: e.message });
   }
 });
 
