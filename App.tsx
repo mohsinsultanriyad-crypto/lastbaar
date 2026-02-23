@@ -221,11 +221,20 @@ const App: React.FC = () => {
       className={`min-h-screen max-w-md mx-auto bg-white shadow-xl relative overflow-hidden flex flex-col`}
       dir={language === 'ar' ? 'rtl' : 'ltr'}
     >
-      {/* Cloud Sync Status Overlay */}
-      <div className="fixed top-4 right-4 z-[200] pointer-events-none">
-        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-black uppercase transition-all duration-500 shadow-sm ${isSyncing ? 'bg-amber-100 text-amber-600 animate-pulse' : 'bg-green-100 text-green-600'}`}>
-          <Cloud size={10} className={isSyncing ? 'animate-bounce' : ''} />
-          {isSyncing ? 'Syncing...' : 'MongoDB Live'}
+      {/* Cloud Sync Status Overlay with Refresh button */}
+      <div className="fixed top-4 right-4 z-[200]">
+        <div className="flex items-center gap-2">
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-black uppercase transition-all duration-500 shadow-sm ${isSyncing ? 'bg-amber-100 text-amber-600 animate-pulse' : 'bg-green-100 text-green-600'}`}> 
+            <Cloud size={10} className={isSyncing ? 'animate-bounce' : ''} />
+            {isSyncing ? 'Syncing...' : 'MongoDB Live'}
+          </div>
+          <button
+            onClick={onManualRefresh}
+            className="px-3 py-1 text-xs font-medium rounded-lg bg-gray-100 hover:bg-gray-200 transition disabled:opacity-60 disabled:cursor-not-allowed"
+            disabled={isSyncing}
+          >
+            Refresh
+          </button>
         </div>
       </div>
 
