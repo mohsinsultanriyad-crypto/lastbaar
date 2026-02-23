@@ -1,5 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
+import { deleteLeave, deleteAdvance } from '../db';
 import { User, Shift, Leave, AdvanceRequest } from '../types';
 import { CheckCircle2, Clock, Calendar as CalendarIcon, History, Wallet, Info, XCircle, AlertCircle, DollarSign, ArrowRight, X } from 'lucide-react';
 import { BASE_HOURS } from '../constants';
@@ -70,6 +71,23 @@ const WorkerHistory: React.FC<WorkerHistoryProps> = ({ user, shifts, leaves, set
   const now = new Date();
   const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
   const days = Array.from({ length: getDaysInMonth(now.getFullYear(), now.getMonth()) }, (_, i) => i + 1);
+
+  // Helper for cloud refresh
+  const refreshCloudData = (window as any).refreshCloudData;
+
+  // Delete leave handler
+  const handleDeleteLeave = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this leave request?')) return;
+    await deleteLeave(id);
+    if (typeof refreshCloudData === 'function') refreshCloudData();
+  };
+
+  // Delete advance handler
+  const handleDeleteAdvance = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this advance request?')) return;
+    await deleteAdvance(id);
+    if (typeof refreshCloudData === 'function') refreshCloudData();
+  };
 
   return (
     <div className="px-6 pt-10 pb-6 space-y-6">
@@ -233,6 +251,16 @@ const WorkerHistory: React.FC<WorkerHistoryProps> = ({ user, shifts, leaves, set
                     <h4 className="text-sm font-bold text-gray-900">{new Date(leave.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</h4>
                   </div>
                   <div className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase ${
+                                      {/* Trash icon for delete (worker only) */}
+                                      {user.role === 'worker' && (
+                                        <button
+                                          className="absolute top-3 right-3 p-2 bg-gray-50 text-gray-400 rounded-xl hover:text-red-600 transition-colors"
+                                          title="Delete Leave"
+                                          onClick={() => handleDeleteLeave(leave.id)}
+                                        >
+                                          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m5 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                        </button>
+                                      )}
                     leave.status.includes('accepted') || leave.status.includes('approved') ? 'bg-green-100 text-green-700' :
                     leave.status.includes('rejected') || leave.status.includes('cancelled') ? 'bg-red-100 text-red-700' :
                     'bg-orange-100 text-orange-700'
@@ -304,6 +332,16 @@ const WorkerHistory: React.FC<WorkerHistoryProps> = ({ user, shifts, leaves, set
             {sortedAdvances.length === 0 && <p className="text-center py-10 text-gray-400 text-xs">No advance requests found.</p>}
             {sortedAdvances.map(r => (
               <div key={r.id} className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm space-y-3 relative overflow-hidden">
+                                {/* Trash icon for delete (worker only) */}
+                                {user.role === 'worker' && (
+                                  <button
+                                    className="absolute top-3 right-3 p-2 bg-gray-50 text-gray-400 rounded-xl hover:text-red-600 transition-colors"
+                                    title="Delete Advance"
+                                    onClick={() => handleDeleteAdvance(r.id)}
+                                  >
+                                    <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m5 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                  </button>
+                                )}
                 <div className={`absolute top-0 left-0 w-1 h-full ${
                   r.status === 'approved' ? 'bg-green-500' :
                   r.status === 'rejected' ? 'bg-red-500' :

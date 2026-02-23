@@ -37,9 +37,12 @@ const AdminWorkerList: React.FC<AdminWorkerListProps> = ({ workers, setWorkers, 
 
   const calculateSalary = (worker: User) => {
     const workerShifts = shifts.filter(s => s.workerId === worker.id && s.isApproved);
-    const workerLeaves = leaves.filter(l => l.workerId === worker.id);
-    const workerAdvances = advanceRequests.filter(r => r.workerId === worker.id && r.status === 'approved');
-    const totalApprovedAdvances = workerAdvances.reduce((acc, r) => acc + r.amount, 0);
+    // Only non-deleted leaves
+    const workerLeaves = leaves.filter(l => l.workerId === worker.id && l.deleted !== true);
+    // Only non-deleted advances
+    const workerAdvances = advanceRequests.filter(r => r.workerId === worker.id && r.status === 'approved' && r.deleted !== true);
+    // Use effectiveAmount if present, else amount
+    const totalApprovedAdvances = workerAdvances.reduce((acc, r) => acc + (typeof r.effectiveAmount === 'number' ? r.effectiveAmount : r.amount), 0);
 
     // FORMULA: HourlyRate = basicSalary / 30 / 10
     const basicSalary = worker.monthlySalary;
@@ -66,9 +69,10 @@ const AdminWorkerList: React.FC<AdminWorkerListProps> = ({ workers, setWorkers, 
     const rejectedLeavesDeduction = rejectedLeavesCount * dailyRate;
 
     // 2. Approved with deduction leaves
+    // Use effectiveDeduction or finalDeductionAmount if present
     const leaveFinalDeductions = workerLeaves
       .filter(l => l.status === 'approved_with_deduction')
-      .reduce((acc, l) => acc + (l.finalDeductionAmount || 0), 0);
+      .reduce((acc, l) => acc + (typeof l.effectiveDeduction === 'number' ? l.effectiveDeduction : (l.finalDeductionAmount || 0)), 0);
 
     const totalAbsentDeduction = rejectedLeavesDeduction + leaveFinalDeductions;
 

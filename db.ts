@@ -1,3 +1,26 @@
+// Soft delete leave
+export async function deleteLeave(id: string) {
+  const actorId = localStorage.getItem('fw_session_id');
+  const actorRole = localStorage.getItem('fw_session_role');
+  await api.delete(`/api/leaves/${id}`, {
+    headers: {
+      'X-Actor-Id': actorId,
+      'X-Actor-Role': actorRole
+    }
+  });
+}
+
+// Soft delete advance
+export async function deleteAdvance(id: string) {
+  const actorId = localStorage.getItem('fw_session_id');
+  const actorRole = localStorage.getItem('fw_session_role');
+  await api.delete(`/api/advances/${id}`, {
+    headers: {
+      'X-Actor-Id': actorId,
+      'X-Actor-Role': actorRole
+    }
+  });
+}
 
 
 import { api } from './api';

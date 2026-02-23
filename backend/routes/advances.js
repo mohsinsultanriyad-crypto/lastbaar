@@ -1,3 +1,31 @@
+// SOFT DELETE /api/advances/:id
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const actorId = req.header('X-Actor-Id');
+    const actorRole = req.header('X-Actor-Role');
+    let doc = null;
+    if (id.match(/^[a-fA-F0-9]{24}$/)) {
+      doc = await Advance.findById(id);
+    } else {
+      doc = await Advance.findOne({ id });
+    }
+    if (!doc) return res.status(404).json({ error: 'Advance not found' });
+    if (actorRole === 'worker' && doc.workerId !== actorId) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    // Soft delete
+    doc.deleted = true;
+    doc.deletedAt = new Date();
+    doc.deletedBy = actorRole;
+    // Salary logic: set effectiveAmount to 0
+    doc.effectiveAmount = 0;
+    await doc.save();
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
 
 const express = require('express');
 const router = express.Router();
@@ -5,7 +33,7 @@ const { Advance } = require('../models');
 
 // GET /api/advances
 router.get('/', async (req, res) => {
-  const docs = await Advance.find({});
+  const docs = await Advance.find({ deleted: { $ne: true } });
   res.json(docs);
 });
 
