@@ -1,6 +1,8 @@
 
 const express = require('express');
 const router = express.Router();
+
+const mongoose = require('mongoose');
 const { Leave } = require('../models');
 
 // SOFT DELETE /api/leaves/:id
@@ -10,7 +12,7 @@ router.delete('/:id', async (req, res) => {
     const actorId = req.header('X-Actor-Id');
     const actorRole = req.header('X-Actor-Role');
     let doc = null;
-    if (/^[a-fA-F0-9]{24}$/.test(id)) {
+    if (mongoose.Types.ObjectId.isValid(id)) {
       doc = await Leave.findById(id);
     }
     if (!doc) {
@@ -29,9 +31,9 @@ router.delete('/:id', async (req, res) => {
     if ('finalDeductionAmount' in doc) doc.finalDeductionAmount = 0;
     doc.effectiveDeduction = 0;
     await doc.save();
-    res.json({ ok: true });
+    return res.json({ ok: true, id: doc.id, _id: doc._id });
   } catch (e) {
-    res.status(400).json({ error: e.message });
+    return res.status(400).json({ error: e.message });
   }
 });
 

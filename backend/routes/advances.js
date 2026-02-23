@@ -1,6 +1,8 @@
 
 const express = require('express');
 const router = express.Router();
+
+const mongoose = require('mongoose');
 const { Advance } = require('../models');
 
 // SOFT DELETE /api/advances/:id
@@ -10,7 +12,7 @@ router.delete('/:id', async (req, res) => {
     const actorId = req.header('X-Actor-Id');
     const actorRole = req.header('X-Actor-Role');
     let doc = null;
-    if (/^[a-fA-F0-9]{24}$/.test(id)) {
+    if (mongoose.Types.ObjectId.isValid(id)) {
       doc = await Advance.findById(id);
     }
     if (!doc) {
@@ -27,9 +29,9 @@ router.delete('/:id', async (req, res) => {
     // Salary logic: set effectiveAmount to 0
     doc.effectiveAmount = 0;
     await doc.save();
-    res.json({ ok: true });
+    return res.json({ ok: true, id: doc.id, _id: doc._id });
   } catch (e) {
-    res.status(400).json({ error: e.message });
+    return res.status(400).json({ error: e.message });
   }
 });
 

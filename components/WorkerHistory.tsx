@@ -250,7 +250,7 @@ const WorkerHistory: React.FC<WorkerHistoryProps> = ({ user, shifts, leaves, set
                     <CalendarIcon size={14} className="text-gray-400" />
                     <h4 className="text-sm font-bold text-gray-900">{new Date(leave.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</h4>
                   </div>
-                  <div className="relative">
+                  <div className="flex items-center gap-2">
                     <div className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase ${
                       leave.status.includes('accepted') || leave.status.includes('approved') ? 'bg-green-100 text-green-700' :
                       leave.status.includes('rejected') || leave.status.includes('cancelled') ? 'bg-red-100 text-red-700' :
@@ -261,7 +261,7 @@ const WorkerHistory: React.FC<WorkerHistoryProps> = ({ user, shifts, leaves, set
                     {user.role === 'worker' && (
                       <button
                         type="button"
-                        className="absolute top-3 right-3 px-3 py-1 text-xs font-semibold rounded-lg bg-gray-50 text-gray-500 hover:bg-red-50 hover:text-red-600 transition"
+                        className="ml-2 px-3 py-1 text-[11px] font-semibold rounded-lg bg-gray-50 text-gray-500 hover:bg-red-50 hover:text-red-600 transition"
                         onClick={() => handleDeleteLeave(leave.id)}
                         aria-label="Delete leave request"
                         title="Delete"
@@ -337,18 +337,27 @@ const WorkerHistory: React.FC<WorkerHistoryProps> = ({ user, shifts, leaves, set
             {sortedAdvances.length === 0 && <p className="text-center py-10 text-gray-400 text-xs">No advance requests found.</p>}
             {sortedAdvances.map(r => (
               <div key={r.id} className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm space-y-3 relative overflow-hidden">
-                                {/* Trash icon for delete (worker only) */}
-                                {user.role === 'worker' && (
-                                  <button
-                                    type="button"
-                                    className="absolute top-3 right-3 px-3 py-1 text-xs font-semibold rounded-lg bg-gray-50 text-gray-500 hover:bg-red-50 hover:text-red-600 transition"
-                                    onClick={() => handleDeleteAdvance(r.id)}
-                                    aria-label="Delete advance request"
-                                    title="Delete"
-                                  >
-                                    Delete
-                                  </button>
-                                )}
+                <div className="flex items-center gap-2">
+                  <div className={`px-2.5 py-1 rounded-xl text-[9px] font-black uppercase ${
+                    r.status === 'approved' ? 'bg-green-100 text-green-600' :
+                    r.status === 'rejected' ? 'bg-red-100 text-red-600' :
+                    r.status === 'scheduled' ? 'bg-blue-100 text-blue-600' :
+                    'bg-orange-100 text-orange-600'
+                  }`}>
+                    {r.status}
+                  </div>
+                  {user.role === 'worker' && (
+                    <button
+                      type="button"
+                      className="ml-2 px-3 py-1 text-[11px] font-semibold rounded-lg bg-gray-50 text-gray-500 hover:bg-red-50 hover:text-red-600 transition"
+                      onClick={() => handleDeleteAdvance(r.id)}
+                      aria-label="Delete advance request"
+                      title="Delete"
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
                 <div className={`absolute top-0 left-0 w-1 h-full ${
                   r.status === 'approved' ? 'bg-green-500' :
                   r.status === 'rejected' ? 'bg-red-500' :
