@@ -26,12 +26,14 @@ interface AdminAppProps {
   onLogout: () => void;
   language: Language;
   setLanguage: (lang: Language) => void;
+  onRefresh: () => Promise<void> | void;
+  isSyncing?: boolean;
 }
 
 const AdminApp: React.FC<AdminAppProps> = ({ 
   user, shifts, setShifts, leaves, setLeaves, workers, setWorkers, posts, setPosts, 
   advanceRequests, setAdvanceRequests, announcements, setAnnouncements, onLogout,
-  language, setLanguage
+  language, setLanguage, onRefresh, isSyncing
 }) => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'workers' | 'reports' | 'feed' | 'profile'>('dashboard');
   const [hasNewAction, setHasNewAction] = useState(false);
@@ -59,6 +61,15 @@ const AdminApp: React.FC<AdminAppProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-white">
+      {/* Header with Refresh button */}
+      <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100 bg-white sticky top-0 z-30">
+        <span className="font-black text-lg text-gray-700">Admin</span>
+        <button
+          className="px-3 py-1 rounded-lg text-xs bg-gray-100 hover:bg-gray-200 transition disabled:opacity-60 disabled:cursor-not-allowed"
+          onClick={onRefresh}
+          disabled={!!isSyncing}
+        >Refresh</button>
+      </div>
       <div className="flex-1 overflow-y-auto pb-24">
         {activeTab === 'dashboard' && (
           <AdminDashboard 

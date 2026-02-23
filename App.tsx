@@ -22,6 +22,12 @@ const App: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [language, setLanguage] = useState<Language>('en');
 
+    // Manual refresh handler
+    const onManualRefresh = async () => {
+      setIsSyncing(true);
+      await refreshCloudData();
+      setIsSyncing(false);
+    };
 
   // Reusable function to fetch all cloud data and update state
   const refreshCloudData = async () => {
@@ -241,6 +247,8 @@ const App: React.FC = () => {
           onLogout={handleLogout}
           language={language}
           setLanguage={handleSetLanguage}
+            onRefresh={onManualRefresh}
+            isSyncing={isSyncing}
         />
       ) : (
         <WorkerApp 
@@ -258,6 +266,8 @@ const App: React.FC = () => {
           onLogout={handleLogout}
           language={language}
           setLanguage={handleSetLanguage}
+            onRefresh={onManualRefresh}
+            isSyncing={isSyncing}
         />
       )}
     </div>
