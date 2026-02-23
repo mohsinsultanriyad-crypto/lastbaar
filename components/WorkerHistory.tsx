@@ -250,21 +250,26 @@ const WorkerHistory: React.FC<WorkerHistoryProps> = ({ user, shifts, leaves, set
                     <CalendarIcon size={14} className="text-gray-400" />
                     <h4 className="text-sm font-bold text-gray-900">{new Date(leave.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</h4>
                   </div>
-                  <div className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase ${
-                                      {/* Trash icon for delete (worker only) */}
-                                      {user.role === 'worker' && (
-                                        <button
-                                          className="absolute top-3 right-3 p-2 bg-gray-50 text-gray-400 rounded-xl hover:text-red-600 transition-colors"
-                                          title="Delete Leave"
-                                          onClick={() => handleDeleteLeave(leave.id)}
-                                        >
-                                          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m5 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                                        </button>
-                                      )}
-                    leave.status.includes('accepted') || leave.status.includes('approved') ? 'bg-green-100 text-green-700' :
-                    leave.status.includes('rejected') || leave.status.includes('cancelled') ? 'bg-red-100 text-red-700' :
-                    'bg-orange-100 text-orange-700'
-                  }`}>{leave.status.replace(/_/g, ' ')}</div>
+                  <div className="relative">
+                    <div className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase ${
+                      leave.status.includes('accepted') || leave.status.includes('approved') ? 'bg-green-100 text-green-700' :
+                      leave.status.includes('rejected') || leave.status.includes('cancelled') ? 'bg-red-100 text-red-700' :
+                      'bg-orange-100 text-orange-700'
+                    }`}>
+                      {leave.status.replace(/_/g, ' ')}
+                    </div>
+                    {user.role === 'worker' && (
+                      <button
+                        type="button"
+                        className="absolute top-3 right-3 p-2 bg-gray-50 text-gray-400 rounded-xl hover:text-red-600 transition-colors"
+                        onClick={() => handleDeleteLeave(leave.id)}
+                        aria-label="Delete leave request"
+                        title="Delete"
+                      >
+                        <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 0 0 1-2-2V6m5 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div className="bg-gray-50/50 p-4 rounded-xl text-xs text-gray-600 italic">"{leave.reason}"</div>
                 

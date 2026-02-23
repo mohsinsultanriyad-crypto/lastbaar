@@ -1,3 +1,8 @@
+
+const express = require('express');
+const router = express.Router();
+const { Leave } = require('../models');
+
 // SOFT DELETE /api/leaves/:id
 router.delete('/:id', async (req, res) => {
   try {
@@ -28,10 +33,6 @@ router.delete('/:id', async (req, res) => {
     res.status(400).json({ error: e.message });
   }
 });
-
-const express = require('express');
-const router = express.Router();
-const { Leave } = require('../models');
 
 // GET /api/leaves
 router.get('/', async (req, res) => {
