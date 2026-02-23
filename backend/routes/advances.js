@@ -1,3 +1,8 @@
+
+const express = require('express');
+const router = express.Router();
+const { Advance } = require('../models');
+
 // SOFT DELETE /api/advances/:id
 router.delete('/:id', async (req, res) => {
   try {
@@ -26,10 +31,6 @@ router.delete('/:id', async (req, res) => {
     res.status(400).json({ error: e.message });
   }
 });
-
-const express = require('express');
-const router = express.Router();
-const { Advance } = require('../models');
 
 // GET /api/advances
 router.get('/', async (req, res) => {
