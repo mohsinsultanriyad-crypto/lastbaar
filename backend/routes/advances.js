@@ -10,22 +10,15 @@ router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const doc = await Advance.findOne({ id });
+    const updated = await Advance.findOneAndUpdate(
+      { id },
+      { $set: { deleted: true, deletedAt: new Date(), amount: 0, effectiveAmount: 0 } },
+      { new: true }
+    );
 
-    if (!doc) {
-      return res.status(404).json({ error: 'Not found' });
-    }
+    if (!updated) return res.status(404).json({ error: 'Not found' });
 
-    doc.deleted = true;
-    doc.deletedAt = new Date();
-
-    // Ensure zero payroll impact
-    if (doc.amount !== undefined) doc.amount = 0;
-    if (doc.effectiveAmount !== undefined) doc.effectiveAmount = 0;
-
-    await doc.save();
-
-    res.json({ ok: true, id: doc.id });
+    return res.json({ ok: true, id: updated.id });
   } catch (e) {
     res.status(400).json({ error: e.message });
   }
