@@ -12,7 +12,8 @@ router.delete('/:id', async (req, res) => {
     const actorId = req.header('X-Actor-Id');
     const actorRole = req.header('X-Actor-Role');
     let doc = null;
-    if (mongoose.Types.ObjectId.isValid(id)) {
+    // Only call findById if id is valid ObjectId and 24 hex chars
+    if (typeof id === 'string' && id.length === 24 && mongoose.Types.ObjectId.isValid(id)) {
       doc = await Leave.findById(id);
     }
     if (!doc) {
