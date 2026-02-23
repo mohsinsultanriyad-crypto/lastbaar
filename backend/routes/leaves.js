@@ -10,12 +10,13 @@ router.delete('/:id', async (req, res) => {
     const actorId = req.header('X-Actor-Id');
     const actorRole = req.header('X-Actor-Role');
     let doc = null;
-    if (id.match(/^[a-fA-F0-9]{24}$/)) {
+    if (/^[a-fA-F0-9]{24}$/.test(id)) {
       doc = await Leave.findById(id);
-    } else {
+    }
+    if (!doc) {
       doc = await Leave.findOne({ id });
     }
-    if (!doc) return res.status(404).json({ error: 'Leave not found' });
+    if (!doc) return res.status(404).json({ error: 'Not found' });
     if (actorRole === 'worker' && doc.workerId !== actorId) {
       return res.status(403).json({ error: 'Forbidden' });
     }

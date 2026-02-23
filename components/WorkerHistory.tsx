@@ -261,12 +261,12 @@ const WorkerHistory: React.FC<WorkerHistoryProps> = ({ user, shifts, leaves, set
                     {user.role === 'worker' && (
                       <button
                         type="button"
-                        className="absolute top-3 right-3 p-2 bg-gray-50 text-gray-400 rounded-xl hover:text-red-600 transition-colors"
+                        className="absolute top-3 right-3 px-3 py-1 text-xs font-semibold rounded-lg bg-gray-50 text-gray-500 hover:bg-red-50 hover:text-red-600 transition"
                         onClick={() => handleDeleteLeave(leave.id)}
                         aria-label="Delete leave request"
                         title="Delete"
                       >
-                        <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 0 0 1-2-2V6m5 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        Delete
                       </button>
                     )}
                   </div>
@@ -340,11 +340,13 @@ const WorkerHistory: React.FC<WorkerHistoryProps> = ({ user, shifts, leaves, set
                                 {/* Trash icon for delete (worker only) */}
                                 {user.role === 'worker' && (
                                   <button
-                                    className="absolute top-3 right-3 p-2 bg-gray-50 text-gray-400 rounded-xl hover:text-red-600 transition-colors"
-                                    title="Delete Advance"
+                                    type="button"
+                                    className="absolute top-3 right-3 px-3 py-1 text-xs font-semibold rounded-lg bg-gray-50 text-gray-500 hover:bg-red-50 hover:text-red-600 transition"
                                     onClick={() => handleDeleteAdvance(r.id)}
+                                    aria-label="Delete advance request"
+                                    title="Delete"
                                   >
-                                    <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m5 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                    Delete
                                   </button>
                                 )}
                 <div className={`absolute top-0 left-0 w-1 h-full ${
